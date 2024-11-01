@@ -14,6 +14,8 @@ pub static VMLINUX_arm: &[u8] = include_bytes!("../include/arm/vmlinux.h");
 pub static VMLINUX_loongarch64: &[u8] = include_bytes!("../include/loongarch64/vmlinux.h");
 /// The contents of `vmlinux.h` for `powerpc`.
 pub static VMLINUX_powerpc: &[u8] = include_bytes!("../include/powerpc/vmlinux.h");
+/// The contents of `vmlinux.h` for `s390x`.
+pub static VMLINUX_s390x: &[u8] = include_bytes!("../include/s390x/vmlinux.h");
 /// The contents of `vmlinux.h` for `riscv64`.
 pub static VMLINUX_riscv64: &[u8] = include_bytes!("../include/riscv64/vmlinux.h");
 /// The contents of `vmlinux.h` for `x86`.
@@ -89,6 +91,10 @@ pub static VMLINUX: &[u8] = {
         VMLINUX_aarch64
     } else if eq(arch, "loongarch64") {
         VMLINUX_loongarch64
+    } else if eq(arch, "riscv64") {
+        VMLINUX_riscv64
+    } else if eq(arch, "s390x") {
+        VMLINUX_s390x
     } else if eq(arch, "powerpc") {
         VMLINUX_powerpc
     } else {
