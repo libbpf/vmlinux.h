@@ -45,3 +45,31 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo doc --no-deps
+  test-libbpf-rs:
+    # check that libbpf-rs, one of the main consumers of the library, works with
+    # this version
+    name: Test libbpf-rs integration
+    runs-on: ubuntu-latest
+    # This test is just informative; certain failures *may* be expected.
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checkout libbpf-rs
+        uses: actions/checkout@v4
+        with:
+          repository: libbpf/libbpf-rs
+          path: libbpf-rs
+      - name: Install development dependencies
+        run: sudo apt-get install -y gcc-multilib libelf-dev zlib1g-dev
+      - name: Build libbpf-rs
+        run: |
+          dir=$(pwd)
+          cd libbpf-rs
+          # Patch the vmlinux.h version in use.
+          cat >> Cargo.toml <<EOF
+          [patch."https://github.com/libbpf/vmlinux.h.git"]
+          vmlinux = { path = "${dir}" }
+          EOF
+          cargo update
+          cargo check --tests
