@@ -1,1 +1,1 @@
-vmlinux_602.h
+vmlinux_6.6.h
