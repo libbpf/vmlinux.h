@@ -1,0 +1,63 @@
+name: vmlinux.h
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  gen-headers:
+    name: Generate vmlinux.h
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Download Linux source
+        shell: bash
+        run: ./scripts/download-latest-linux-release.sh
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          ./scripts/install-dependencies.sh
+          ./scripts/install-pahole.sh
+          ./scripts/install-bpftool.sh
+
+      - name: x86_64/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh x86_64
+
+      - name: aarch64/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh aarch64
+
+      - name: arm/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh arm
+
+      - name: loongarch64/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh loongarch64
+
+      - name: ppc64le/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh ppc64le
+
+      - name: riscv64/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh riscv64
+
+      - name: s390x/vmlinux.h
+        shell: bash
+        run: ./scripts/gen-vmlinux-header.sh s390x
+
+      - name: Upload headers
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmlinux.h
+          if-no-files-found: error
+          path: ./vmlinux.h
