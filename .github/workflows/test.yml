@@ -73,3 +73,31 @@ jobs:
           EOF
           cargo update
           cargo check --tests
+  generate-headers:
+    name: Generate vmlinux.h headers
+    uses: ./.github/workflows/vmlinux.h.yml
+  check-headers:
+    name: Check headers are up to date
+    runs-on: ubuntu-latest
+    needs: generate-headers
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download generated headers
+        uses: actions/download-artifact@v4
+        with:
+          name: vmlinux.h
+          path: generated-headers
+
+      - name: Copy headers to include/ directory
+        shell: bash
+        run: |
+          # Copy each vmlinux.h file to the corresponding include/ subdirectory
+          for dir in generated-headers/*/; do
+            arch=$(basename "$dir")
+            cp "$dir"vmlinux.h "include/$arch/"
+          done
+
+      - name: Check for differences
+        run: git diff --exit-code ||
+             (echo "!!!! CHECKED IN vmlinux.h HEADER IS OUTDATED !!!!" && false)
