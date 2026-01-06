@@ -24,11 +24,28 @@ jobs:
           fetch-depth: 1
           path: linux/
 
+      - name: Check out pahole source
+        uses: actions/checkout@v6
+        with:
+          repository: 'acmel/dwarves'
+          ref: 'next'
+          fetch-depth: 1
+          path: pahole/
+
+      - name: Install pahole
+        shell: bash
+        run: |
+          sudo apt -y install cmake git libdw-dev libelf-dev
+          cd pahole
+          mkdir -p build
+          cmake -B=build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+          make -C build -j$(nproc)
+          sudo make -C build install
+
       - name: Install dependencies
         shell: bash
         run: |
           ./scripts/install-dependencies.sh
-          ./scripts/install-pahole.sh
           ./scripts/install-bpftool.sh
 
       - name: x86_64/vmlinux.h
