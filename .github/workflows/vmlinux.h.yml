@@ -6,6 +6,7 @@ on:
     branches:
       - main
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   gen-headers:
@@ -87,8 +88,13 @@ jobs:
           for dir in vmlinux.h-*/; do
             arch="${dir#vmlinux.h-}"
             arch="${arch%/}"
-            mkdir -p "vmlinux.h/$arch"
-            mv "$dir"* "vmlinux.h/$arch/"
+            # Map architecture names to match include/ directory structure
+            target_arch="$arch"
+            case "$arch" in
+              ppc64le) target_arch="powerpc" ;;
+            esac
+            mkdir -p "vmlinux.h/$target_arch"
+            mv "$dir"* "vmlinux.h/$target_arch/"
           done
 
       - name: Upload combined headers
