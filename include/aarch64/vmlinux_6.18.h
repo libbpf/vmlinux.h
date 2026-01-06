@@ -41826,6 +41826,41 @@ struct syscall_info {
 	struct seccomp_data data;
 };
 
+struct syscall_metadata {
+	const char *name;
+	int syscall_nr;
+	int nb_args;
+	const char **types;
+	const char **args;
+	struct list_head enter_fields;
+	struct trace_event_call *enter_event;
+	struct trace_event_call *exit_event;
+};
+
+struct syscall_tp_t {
+	struct trace_entry ent;
+	int syscall_nr;
+	long unsigned int ret;
+};
+
+struct syscall_tp_t___2 {
+	struct trace_entry ent;
+	int syscall_nr;
+	long unsigned int args[6];
+};
+
+struct syscall_trace_enter {
+	struct trace_entry ent;
+	int nr;
+	long unsigned int args[0];
+};
+
+struct syscall_trace_exit {
+	struct trace_entry ent;
+	int nr;
+	long int ret;
+};
+
 struct syscall_user_dispatch {};
 
 struct syscore_ops {
@@ -43375,6 +43410,10 @@ struct trace_array {
 	struct trace_pid_list *filtered_pids;
 	struct trace_pid_list *filtered_no_pids;
 	arch_spinlock_t max_lock;
+	int sys_refcount_enter;
+	int sys_refcount_exit;
+	struct trace_event_file *enter_syscall_files[470];
+	struct trace_event_file *exit_syscall_files[470];
 	int stop_count;
 	int clock_id;
 	int nr_topts;
