@@ -6,6 +6,12 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      kernel-ref:
+        description: 'Kernel version (Git tag/ref)'
+        required: true
+        # Keep in sync with string used in `checkout` invocation below.
+        default: 'v6.18'
   workflow_call:
 
 jobs:
@@ -31,7 +37,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: 'torvalds/linux'
-          ref: 'v6.18'
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.kernel-ref || 'v6.18' }}
           fetch-depth: 1
           path: linux/
 
