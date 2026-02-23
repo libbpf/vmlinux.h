@@ -61,7 +61,7 @@ jobs:
           repository: libbpf/libbpf-rs
           path: libbpf-rs
       - name: Install development dependencies
-        run: sudo apt-get install -y gcc-multilib libelf-dev zlib1g-dev
+        run: sudo apt-get update -y && sudo apt-get install -y gcc-multilib libelf-dev zlib1g-dev
       - name: Build libbpf-rs
         run: |
           dir=$(pwd)
