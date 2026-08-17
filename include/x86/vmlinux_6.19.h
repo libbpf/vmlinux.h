@@ -5054,16 +5054,17 @@ enum {
 	__SCHED_FEAT_TTWU_QUEUE = 14,
 	__SCHED_FEAT_SIS_UTIL = 15,
 	__SCHED_FEAT_WARN_DOUBLE_CLOCK = 16,
-	__SCHED_FEAT_RT_RUNTIME_SHARE = 17,
-	__SCHED_FEAT_LB_MIN = 18,
-	__SCHED_FEAT_ATTACH_AGE_LOAD = 19,
-	__SCHED_FEAT_WA_IDLE = 20,
-	__SCHED_FEAT_WA_WEIGHT = 21,
-	__SCHED_FEAT_WA_BIAS = 22,
-	__SCHED_FEAT_UTIL_EST = 23,
-	__SCHED_FEAT_LATENCY_WARN = 24,
-	__SCHED_FEAT_NI_RANDOM = 25,
-	__SCHED_FEAT_NR = 26,
+	__SCHED_FEAT_RT_PUSH_IPI = 17,
+	__SCHED_FEAT_RT_RUNTIME_SHARE = 18,
+	__SCHED_FEAT_LB_MIN = 19,
+	__SCHED_FEAT_ATTACH_AGE_LOAD = 20,
+	__SCHED_FEAT_WA_IDLE = 21,
+	__SCHED_FEAT_WA_WEIGHT = 22,
+	__SCHED_FEAT_WA_BIAS = 23,
+	__SCHED_FEAT_UTIL_EST = 24,
+	__SCHED_FEAT_LATENCY_WARN = 25,
+	__SCHED_FEAT_NI_RANDOM = 26,
+	__SCHED_FEAT_NR = 27,
 };
 
 enum {
@@ -6709,6 +6710,14 @@ enum cpufreq_table_sorting {
 	CPUFREQ_TABLE_SORTED_DESCENDING = 2,
 };
 
+enum cpuhp_smt_control {
+	CPU_SMT_ENABLED = 0,
+	CPU_SMT_DISABLED = 1,
+	CPU_SMT_FORCE_DISABLED = 2,
+	CPU_SMT_NOT_SUPPORTED = 3,
+	CPU_SMT_NOT_IMPLEMENTED = 4,
+};
+
 enum cpuhp_state {
 	CPUHP_INVALID = -1,
 	CPUHP_OFFLINE = 0,
@@ -6891,6 +6900,15 @@ enum cpuhp_state {
 	CPUHP_AP_X86_KVM_CLK_ONLINE = 235,
 	CPUHP_AP_ACTIVE = 236,
 	CPUHP_ONLINE = 237,
+};
+
+enum cpuhp_sync_state {
+	SYNC_STATE_DEAD = 0,
+	SYNC_STATE_KICKED = 1,
+	SYNC_STATE_SHOULD_DIE = 2,
+	SYNC_STATE_ALIVE = 3,
+	SYNC_STATE_SHOULD_ONLINE = 4,
+	SYNC_STATE_ONLINE = 5,
 };
 
 enum cpuid_leafs {
@@ -7238,6 +7256,14 @@ enum efi_secureboot_mode {
 	efi_secureboot_mode_unknown = 1,
 	efi_secureboot_mode_disabled = 2,
 	efi_secureboot_mode_enabled = 3,
+};
+
+enum energy_perf_value_index {
+	EPP_INDEX_DEFAULT = 0,
+	EPP_INDEX_PERFORMANCE = 1,
+	EPP_INDEX_BALANCE_PERFORMANCE = 2,
+	EPP_INDEX_BALANCE_POWERSAVE = 3,
+	EPP_INDEX_POWERSAVE = 4,
 };
 
 enum error_detector {
@@ -8262,6 +8288,12 @@ enum hash_pointers_policy {
 	HASH_PTR_NEVER = 2,
 };
 
+enum hk_flags {
+	HK_FLAG_DOMAIN = 1,
+	HK_FLAG_MANAGED_IRQ = 2,
+	HK_FLAG_KERNEL_NOISE = 4,
+};
+
 enum hk_type {
 	HK_TYPE_DOMAIN = 0,
 	HK_TYPE_MANAGED_IRQ = 1,
@@ -8334,6 +8366,13 @@ enum hw_protection_action {
 	HWPROT_ACT_DEFAULT = 0,
 	HWPROT_ACT_SHUTDOWN = 1,
 	HWPROT_ACT_REBOOT = 2,
+};
+
+enum hwp_cpufreq_attr_index {
+	HWP_BASE_FREQUENCY_INDEX = 0,
+	HWP_PERFORMANCE_PREFERENCE_INDEX = 1,
+	HWP_PERFORMANCE_AVAILABLE_PREFERENCES_INDEX = 2,
+	HWP_CPUFREQ_ATTR_COUNT = 3,
 };
 
 enum hwtstamp_flags {
@@ -9402,6 +9441,14 @@ enum mthp_stat_item {
 	MTHP_STAT_NR_ANON = 15,
 	MTHP_STAT_NR_ANON_PARTIALLY_MAPPED = 16,
 	__MTHP_STAT_COUNT = 17,
+};
+
+enum multi_stop_state {
+	MULTI_STOP_NONE = 0,
+	MULTI_STOP_PREPARE = 1,
+	MULTI_STOP_DISABLE_IRQ = 2,
+	MULTI_STOP_RUN = 3,
+	MULTI_STOP_EXIT = 4,
 };
 
 enum nbcon_prio {
@@ -12122,7 +12169,7 @@ enum wq_internal_consts {
 
 enum wq_misc_consts {
 	WORK_NR_COLORS = 16,
-	WORK_CPU_UNBOUND = 1,
+	WORK_CPU_UNBOUND = 2,
 	WORK_BUSY_PENDING = 1,
 	WORK_BUSY_RUNNING = 2,
 	WORKER_DESC_LEN = 32,
@@ -12348,6 +12395,12 @@ enum xfrm_replay_mode {
 	XFRM_REPLAY_MODE_LEGACY = 0,
 	XFRM_REPLAY_MODE_BMP = 1,
 	XFRM_REPLAY_MODE_ESN = 2,
+};
+
+enum xps_map_type {
+	XPS_CPUS = 0,
+	XPS_RXQS = 1,
+	XPS_MAPS_MAX = 2,
 };
 
 enum xstate_copy_mode {
@@ -12768,10 +12821,6 @@ typedef struct {
 	int val[2];
 } __kernel_fsid_t;
 
-typedef struct {} arch_rwlock_t;
-
-typedef struct {} arch_spinlock_t;
-
 typedef struct {
 	s64 counter;
 } atomic64_t;
@@ -12906,6 +12955,35 @@ typedef struct {
 	void *lock;
 } class_rcu_tasks_trace_t;
 
+struct qspinlock {
+	union {
+		atomic_t val;
+		struct {
+			u8 locked;
+			u8 pending;
+		};
+		struct {
+			u16 locked_pending;
+			u16 tail;
+		};
+	};
+};
+
+typedef struct qspinlock arch_spinlock_t;
+
+struct qrwlock {
+	union {
+		atomic_t cnts;
+		struct {
+			u8 wlocked;
+			u8 __lstate[3];
+		};
+	};
+	arch_spinlock_t wait_lock;
+};
+
+typedef struct qrwlock arch_rwlock_t;
+
 typedef struct {
 	arch_rwlock_t raw_lock;
 } rwlock_t;
@@ -13018,8 +13096,9 @@ typedef struct {
 	unsigned int x86_platform_ipis;
 	unsigned int apic_perf_irqs;
 	unsigned int apic_irq_work_irqs;
+	unsigned int irq_resched_count;
+	unsigned int irq_call_count;
 	unsigned int irq_tlb_count;
-	long: 64;
 	long: 64;
 	long: 64;
 	long: 64;
@@ -13063,6 +13142,10 @@ struct raw_spinlock {
 	arch_spinlock_t raw_lock;
 };
 
+struct optimistic_spin_queue {
+	atomic_t tail;
+};
+
 struct list_head {
 	struct list_head *next;
 	struct list_head *prev;
@@ -13071,6 +13154,7 @@ struct list_head {
 struct mutex {
 	atomic_long_t owner;
 	raw_spinlock_t wait_lock;
+	struct optimistic_spin_queue osq;
 	struct list_head wait_list;
 };
 
@@ -13440,12 +13524,19 @@ struct Qdisc {
 	struct gnet_stats_queue qstats;
 	struct sk_buff *to_free;
 	__u8 __cacheline_group_end__Qdisc_write[0];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_long_t defer_count;
 	struct llist_head defer_list;
 	spinlock_t seqlock;
 	struct callback_head rcu;
 	netdevice_tracker dev_tracker;
 	struct lock_class_key root_lock_key;
+	long: 64;
 	long: 64;
 	long: 64;
 	long int privdata[0];
@@ -14040,6 +14131,7 @@ struct xarray {
 struct rw_semaphore {
 	atomic_long_t count;
 	atomic_long_t owner;
+	struct optimistic_spin_queue osq;
 	raw_spinlock_t wait_lock;
 	struct list_head wait_list;
 };
@@ -14477,6 +14569,11 @@ struct arch_hw_breakpoint {
 	u8 type;
 };
 
+struct arch_hybrid_cpu_scale {
+	long unsigned int capacity;
+	long unsigned int freq_ratio;
+};
+
 struct arch_io_reserve_memtype_wc_devres {
 	resource_size_t start;
 	resource_size_t size;
@@ -14797,7 +14894,10 @@ struct attribute_group {
 };
 
 struct percpu_counter {
+	raw_spinlock_t lock;
 	s64 count;
+	struct list_head list;
+	s32 *counters;
 };
 
 struct fprop_local_percpu {
@@ -16154,6 +16254,13 @@ struct bpf_lru_list {
 	unsigned int counts[2];
 	struct list_head *next_inactive_rotation;
 	raw_spinlock_t lock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bpf_lru_locallist;
@@ -16161,6 +16268,13 @@ struct bpf_lru_locallist;
 struct bpf_common_lru {
 	struct bpf_lru_list lru_list;
 	struct bpf_lru_locallist *local_list;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bpf_core_accessor {
@@ -17163,6 +17277,10 @@ struct bpf_lru {
 	unsigned int target_free;
 	unsigned int nr_scans;
 	bool percpu;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bucket;
@@ -17175,6 +17293,9 @@ struct bpf_htab {
 	struct bpf_mem_alloc pcpu_ma;
 	struct bucket *buckets;
 	void *elems;
+	long: 64;
+	long: 64;
+	long: 64;
 	union {
 		struct pcpu_freelist freelist;
 		struct bpf_lru lru;
@@ -17186,6 +17307,13 @@ struct bpf_htab {
 	u32 n_buckets;
 	u32 elem_size;
 	u32 hashrnd;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bpf_iarray {
@@ -18654,14 +18782,7 @@ struct bpf_prog_stats {
 	long: 64;
 };
 
-struct rqspinlock {
-	union {
-		atomic_t val;
-		u32 locked;
-	};
-};
-
-typedef struct rqspinlock rqspinlock_t;
+typedef struct qspinlock rqspinlock_t;
 
 struct bpf_queue_stack {
 	struct bpf_map map;
@@ -18749,23 +18870,21 @@ struct bpf_ringbuf {
 	struct page **pages;
 	int nr_pages;
 	bool overwrite_mode;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	rqspinlock_t spinlock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_t busy;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
 	long: 64;
 	long: 64;
 	long: 64;
@@ -20538,7 +20657,19 @@ struct bpf_struct_ops_common_value {
 
 struct bpf_struct_ops_bpf_dummy_ops {
 	struct bpf_struct_ops_common_value common;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct bpf_dummy_ops data;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bpf_struct_ops_desc {
@@ -20558,6 +20689,13 @@ struct bpf_struct_ops_link {
 
 struct bpf_struct_ops_value {
 	struct bpf_struct_ops_common_value common;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	char data[0];
 };
 
@@ -20572,6 +20710,9 @@ struct bpf_struct_ops_map {
 	void *image_pages[8];
 	struct btf *btf;
 	struct bpf_struct_ops_value *uvalue;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct bpf_struct_ops_value kvalue;
 };
 
@@ -20598,10 +20739,22 @@ struct tcp_congestion_ops {
 	u32 flags;
 	void (*init)(struct sock *);
 	void (*release)(struct sock *);
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct bpf_struct_ops_tcp_congestion_ops {
 	struct bpf_struct_ops_common_value common;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct tcp_congestion_ops data;
 };
 
@@ -23072,6 +23225,7 @@ struct bucket_table {
 	struct callback_head rcu;
 	struct bucket_table *future_tbl;
 	struct lockdep_map dep_map;
+	long: 64;
 	struct rhash_lock_head *buckets[0];
 };
 
@@ -23155,6 +23309,18 @@ struct cacheinfo {
 	void *fw_token;
 	bool disable_sysfs;
 	void *priv;
+};
+
+struct cacheline_padding {
+	char x[0];
+};
+
+typedef struct cpumask cpumask_var_t[1];
+
+struct call_function_data {
+	call_single_data_t *csd;
+	cpumask_var_t cpumask;
+	cpumask_var_t cpumask_ipi;
 };
 
 struct call_summary {
@@ -23870,6 +24036,12 @@ struct container_dev {
 	int (*offline)(struct container_dev *);
 };
 
+struct context_tracking {
+	atomic_t state;
+	long int nesting;
+	long int nmi_nesting;
+};
+
 struct core_thread {
 	struct task_struct *task;
 	struct core_thread *next;
@@ -23945,6 +24117,11 @@ struct cpu_dev {
 	void (*c_identify)(struct cpuinfo_x86 *);
 	void (*c_detect_tlb)(struct cpuinfo_x86 *);
 	int c_x86_vendor;
+};
+
+struct cpu_down_work {
+	unsigned int cpu;
+	enum cpuhp_state target;
 };
 
 struct entry_stack {
@@ -24502,6 +24679,7 @@ struct cpu_fbatches {
 	struct folio_batch lru_deactivate_file;
 	struct folio_batch lru_deactivate;
 	struct folio_batch lru_lazyfree;
+	struct folio_batch lru_activate;
 	local_lock_t lock_irq;
 	struct folio_batch lru_move_tail;
 };
@@ -24615,18 +24793,46 @@ struct cpu_perf_ibs {
 	long unsigned int state[1];
 };
 
+struct cpu_rmap {
+	struct kref refcount;
+	u16 size;
+	void **obj;
+	struct {
+		u16 index;
+		u16 dist;
+	} near[0];
+};
+
 struct cpu_signature {
 	unsigned int sig;
 	unsigned int pf;
 	unsigned int rev;
 };
 
+struct cpu_stop_done {
+	atomic_t nr_todo;
+	int ret;
+	struct completion completion;
+};
+
 typedef int (*cpu_stop_fn_t)(void *);
 
 struct cpu_stop_work {
-	struct work_struct work;
+	struct list_head list;
 	cpu_stop_fn_t fn;
+	long unsigned int caller;
 	void *arg;
+	struct cpu_stop_done *done;
+};
+
+struct cpu_stopper {
+	struct task_struct *thread;
+	raw_spinlock_t lock;
+	bool enabled;
+	struct list_head works;
+	struct cpu_stop_work stop_work;
+	long unsigned int caller;
+	cpu_stop_fn_t fn;
 };
 
 struct cpu_vfs_cap_data {
@@ -24636,7 +24842,69 @@ struct cpu_vfs_cap_data {
 	kernel_cap_t inheritable;
 };
 
-typedef struct cpumask cpumask_var_t[1];
+struct update_util_data {
+	void (*func)(struct update_util_data *, u64, unsigned int);
+};
+
+struct pstate_data {
+	int current_pstate;
+	int min_pstate;
+	int max_pstate;
+	int max_pstate_physical;
+	int perf_ctl_scaling;
+	int scaling;
+	int turbo_pstate;
+	unsigned int min_freq;
+	unsigned int max_freq;
+	unsigned int turbo_freq;
+};
+
+struct vid_data {
+	int min;
+	int max;
+	int turbo;
+	int32_t ratio;
+};
+
+struct sample {
+	int32_t core_avg_perf;
+	int32_t busy_scaled;
+	u64 aperf;
+	u64 mperf;
+	u64 tsc;
+	u64 time;
+};
+
+struct cpudata {
+	int cpu;
+	unsigned int policy;
+	struct update_util_data update_util;
+	bool update_util_set;
+	struct pstate_data pstate;
+	struct vid_data vid;
+	u64 last_update;
+	u64 last_sample_time;
+	u64 aperf_mperf_shift;
+	u64 prev_aperf;
+	u64 prev_mperf;
+	u64 prev_tsc;
+	struct sample sample;
+	int32_t min_perf_ratio;
+	int32_t max_perf_ratio;
+	unsigned int iowait_boost;
+	s16 epp_powersave;
+	s16 epp_policy;
+	s16 epp_default;
+	s16 epp_cached;
+	u64 hwp_req_cached;
+	u64 hwp_cap_cached;
+	u64 last_io_update;
+	unsigned int capacity_perf;
+	unsigned int sched_flags;
+	u32 hwp_boost_min;
+	bool suspended;
+	struct delayed_work hwp_notify_work;
+};
 
 struct cpudl_item;
 
@@ -24659,13 +24927,52 @@ struct cpufreq_cpuinfo {
 	unsigned int transition_latency;
 };
 
+struct cpufreq_policy;
+
+struct cpufreq_policy_data;
+
+struct freq_attr;
+
+struct cpufreq_driver {
+	char name[16];
+	u16 flags;
+	void *driver_data;
+	int (*init)(struct cpufreq_policy *);
+	int (*verify)(struct cpufreq_policy_data *);
+	int (*setpolicy)(struct cpufreq_policy *);
+	int (*target)(struct cpufreq_policy *, unsigned int, unsigned int);
+	int (*target_index)(struct cpufreq_policy *, unsigned int);
+	unsigned int (*fast_switch)(struct cpufreq_policy *, unsigned int);
+	void (*adjust_perf)(unsigned int, long unsigned int, long unsigned int, long unsigned int);
+	unsigned int (*get_intermediate)(struct cpufreq_policy *, unsigned int);
+	int (*target_intermediate)(struct cpufreq_policy *, unsigned int);
+	unsigned int (*get)(unsigned int);
+	void (*update_limits)(struct cpufreq_policy *);
+	int (*bios_limit)(int, unsigned int *);
+	int (*online)(struct cpufreq_policy *);
+	int (*offline)(struct cpufreq_policy *);
+	void (*exit)(struct cpufreq_policy *);
+	int (*suspend)(struct cpufreq_policy *);
+	int (*resume)(struct cpufreq_policy *);
+	void (*ready)(struct cpufreq_policy *);
+	struct freq_attr **attr;
+	bool boost_enabled;
+	int (*set_boost)(struct cpufreq_policy *, int);
+	void (*register_em)(struct cpufreq_policy *);
+};
+
+struct cpufreq_freqs {
+	struct cpufreq_policy *policy;
+	unsigned int old;
+	unsigned int new;
+	u8 flags;
+};
+
 struct cpufreq_frequency_table {
 	unsigned int flags;
 	unsigned int driver_data;
 	unsigned int frequency;
 };
-
-struct cpufreq_policy;
 
 struct cpufreq_governor {
 	char name[16];
@@ -24680,6 +24987,10 @@ struct cpufreq_governor {
 	struct module *owner;
 	u8 flags;
 };
+
+typedef struct cpufreq_policy *class_cpufreq_policy_read_t;
+
+typedef struct cpufreq_policy *class_cpufreq_policy_write_t;
 
 struct clk;
 
@@ -24705,8 +25016,6 @@ struct freq_constraints {
 
 struct cpufreq_stats;
 
-struct thermal_cooling_device;
-
 typedef int (*notifier_fn_t)(struct notifier_block *, long unsigned int, void *);
 
 struct notifier_block {
@@ -24716,6 +25025,8 @@ struct notifier_block {
 };
 
 struct freq_qos_request;
+
+struct thermal_cooling_device;
 
 struct cpufreq_policy {
 	cpumask_var_t cpus;
@@ -24765,10 +25076,30 @@ struct cpufreq_policy {
 	struct notifier_block nb_max;
 };
 
+struct cpufreq_policy_data {
+	struct cpufreq_cpuinfo cpuinfo;
+	struct cpufreq_frequency_table *freq_table;
+	unsigned int cpu;
+	unsigned int min;
+	unsigned int max;
+};
+
 struct cpuhp_cpu_state {
 	enum cpuhp_state state;
 	enum cpuhp_state target;
 	enum cpuhp_state fail;
+	struct task_struct *thread;
+	bool should_run;
+	bool rollback;
+	bool single;
+	bool bringup;
+	struct hlist_node *node;
+	struct hlist_node *last;
+	enum cpuhp_state cb_state;
+	int result;
+	atomic_t ap_sync_state;
+	struct completion done_up;
+	struct completion done_down;
 };
 
 struct cpuhp_step {
@@ -25332,6 +25663,7 @@ union shortname_store {
 
 struct lockref {
 	union {
+		__u64 lock_count;
 		struct {
 			spinlock_t lock;
 			int count;
@@ -26039,6 +26371,7 @@ struct dql {
 	short unsigned int stall_thrs;
 	long unsigned int history_head;
 	long unsigned int history[4];
+	long: 64;
 	unsigned int limit;
 	unsigned int num_completed;
 	unsigned int prev_ovlimit;
@@ -26209,6 +26542,9 @@ struct dst_ops {
 	void (*confirm_neigh)(const struct dst_entry *, const void *);
 	struct kmem_cache *kmem_cachep;
 	struct percpu_counter pcpuc_entries;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct dump_stack_ctx {
@@ -28822,12 +29158,20 @@ struct files_struct {
 	wait_queue_head_t resize_wait;
 	struct fdtable *fdt;
 	struct fdtable fdtab;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	spinlock_t file_lock;
 	unsigned int next_fd;
 	long unsigned int close_on_exec_init[1];
 	long unsigned int open_fds_init[1];
 	long unsigned int full_fds_bits_init[1];
 	struct file *fd_array[64];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct filter_head {
@@ -29843,10 +30187,21 @@ struct fqdir {
 	struct inet_frags *f;
 	struct net *net;
 	bool dead;
+	long: 64;
+	long: 64;
 	struct rhashtable rhashtable;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_long_t mem;
 	struct work_struct destroy_work;
 	struct llist_node free_list;
+	long: 64;
+	long: 64;
 };
 
 struct frag_hdr {
@@ -29932,6 +30287,12 @@ struct freelist_tid {
 		};
 		freelist_full_t freelist_tid;
 	};
+};
+
+struct freq_attr {
+	struct attribute attr;
+	ssize_t (*show)(struct cpufreq_policy *, char *);
+	ssize_t (*store)(struct cpufreq_policy *, const char *, size_t);
 };
 
 struct muldiv {
@@ -30910,8 +31271,21 @@ struct pcpu_gen_cookie;
 
 struct gen_cookie {
 	struct pcpu_gen_cookie *local;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic64_t forward_last;
 	atomic64_t reverse_last;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct disk_events;
@@ -31205,6 +31579,13 @@ struct ghcb {
 	u32 ghcb_usage;
 };
 
+struct global_params {
+	bool no_turbo;
+	bool turbo_disabled;
+	int max_perf_pct;
+	int min_perf_pct;
+};
+
 struct tc_stats {
 	__u64 bytes;
 	__u32 packets;
@@ -31246,6 +31627,19 @@ struct gnet_stats_rate_est {
 struct gnet_stats_rate_est64 {
 	__u64 bps;
 	__u64 pps;
+};
+
+struct gov_attr_set {
+	struct kobject kobj;
+	struct list_head policy_list;
+	struct mutex update_lock;
+	int usage_count;
+};
+
+struct governor_attr {
+	struct attribute attr;
+	ssize_t (*show)(struct gov_attr_set *, char *);
+	ssize_t (*store)(struct gov_attr_set *, const char *, size_t);
 };
 
 struct gre_base_hdr {
@@ -31418,6 +31812,11 @@ struct hop_jumbo_hdr {
 	__be32 jumbo_payload_len;
 };
 
+struct housekeeping {
+	struct cpumask cpumasks[3];
+	long unsigned int flags;
+};
+
 struct hpet_channel;
 
 struct hpet_base {
@@ -31439,6 +31838,14 @@ struct hpet_channel {
 	long: 64;
 	long: 64;
 	long: 64;
+};
+
+union hpet_lock {
+	struct {
+		arch_spinlock_t lock;
+		u32 value;
+	};
+	u64 lockval;
 };
 
 struct hprobe {
@@ -31480,7 +31887,6 @@ struct hrtimer_cpu_base {
 	struct hrtimer *next_timer;
 	ktime_t softirq_expires_next;
 	struct hrtimer *softirq_next_timer;
-	long: 64;
 	long: 64;
 	struct hrtimer_clock_base clock_base[8];
 	call_single_data_t csd;
@@ -32642,6 +33048,7 @@ struct sock_common {
 		struct hlist_nulls_node skc_nulls_node;
 	};
 	short unsigned int skc_tx_queue_mapping;
+	short unsigned int skc_rx_queue_mapping;
 	union {
 		int skc_incoming_cpu;
 		u32 skc_rcv_wnd;
@@ -33099,6 +33506,12 @@ struct inet_hashinfo {
 	unsigned int lhash2_mask;
 	struct inet_listen_hashbucket *lhash2;
 	bool pernet;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct inet_listen_hashbucket {
@@ -33199,8 +33612,21 @@ struct inet_skb_parm {
 
 struct inet_timewait_death_row {
 	refcount_t tw_refcount;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct inet_hashinfo *hashinfo;
 	int sysctl_max_tw_buckets;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct inet_timewait_sock {
@@ -34510,6 +34936,8 @@ struct irq_common_data {
 	unsigned int state_use_accessors;
 	void *handler_data;
 	struct msi_desc *msi_desc;
+	cpumask_var_t affinity;
+	cpumask_var_t effective_affinity;
 };
 
 struct irq_data {
@@ -34545,6 +34973,9 @@ struct irq_desc {
 	int threads_handled_last;
 	raw_spinlock_t lock;
 	struct cpumask *percpu_enabled;
+	const struct cpumask *affinity_hint;
+	struct irq_affinity_notify *affinity_notify;
+	cpumask_var_t pending_mask;
 	long unsigned int threads_oneshot;
 	atomic_t threads_active;
 	wait_queue_head_t wait_for_threads;
@@ -34555,6 +34986,13 @@ struct irq_desc {
 	struct module *owner;
 	const char *name;
 	struct hlist_node resend_node;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 typedef struct irq_desc *vector_irq_t[256];
@@ -34663,6 +35101,12 @@ struct irq_fwspec_info {
 	const struct cpumask *affinity;
 };
 
+struct irq_glue {
+	struct irq_affinity_notify notify;
+	struct cpu_rmap *rmap;
+	u16 index;
+};
+
 struct irq_matrix {
 	unsigned int matrix_bits;
 	unsigned int alloc_start;
@@ -34707,6 +35151,10 @@ struct irqaction {
 	long unsigned int thread_mask;
 	const char *name;
 	struct proc_dir_entry *dir;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct irqchip_fwid {
@@ -34789,6 +35237,8 @@ struct kcore_list {
 	int type;
 };
 
+struct kcsan_scoped_access {};
+
 struct kern_ipc_perm {
 	spinlock_t lock;
 	bool deleted;
@@ -34804,6 +35254,11 @@ struct kern_ipc_perm {
 	struct rhash_head khtnode;
 	struct callback_head rcu;
 	refcount_t refcount;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct kernel_clone_args {
@@ -34974,7 +35429,7 @@ struct kernfs_fs_context {
 };
 
 struct kernfs_global_locks {
-	struct mutex open_file_mutex[2];
+	struct mutex open_file_mutex[4];
 };
 
 struct simple_xattrs {
@@ -35740,16 +36195,18 @@ struct kvm_arch {
 	int cpu_dirty_log_size;
 };
 
+struct srcu_ctr;
+
+struct srcu_data;
+
+struct srcu_usage;
+
 struct srcu_struct {
-	short int srcu_lock_nesting[2];
-	u8 srcu_gp_running;
-	u8 srcu_gp_waiting;
-	long unsigned int srcu_idx;
-	long unsigned int srcu_idx_max;
-	struct swait_queue_head srcu_wq;
-	struct callback_head *srcu_cb_head;
-	struct callback_head **srcu_cb_tail;
-	struct work_struct srcu_work;
+	struct srcu_ctr *srcu_ctrp;
+	struct srcu_data *sda;
+	u8 srcu_reader_flavor;
+	struct lockdep_map dep_map;
+	struct srcu_usage *srcu_sup;
 };
 
 struct kvm_io_bus;
@@ -37177,6 +37634,9 @@ struct list_lru_one {
 struct list_lru_node {
 	struct list_lru_one lru;
 	atomic_long_t nr_items;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct listeners {
@@ -37745,6 +38205,12 @@ struct mc146818_get_time_callback_param {
 	unsigned char ctrl;
 };
 
+struct mcs_spinlock {
+	struct mcs_spinlock *next;
+	int locked;
+	int count;
+};
+
 struct mdio_bus_stats {
 	u64_stats_t transfers;
 	u64_stats_t errors;
@@ -38102,6 +38568,13 @@ struct mm_struct {
 	struct {
 		struct {
 			atomic_t mm_count;
+			long: 64;
+			long: 64;
+			long: 64;
+			long: 64;
+			long: 64;
+			long: 64;
+			long: 64;
 		};
 		struct maple_tree mm_mt;
 		long unsigned int mmap_base;
@@ -38115,6 +38588,8 @@ struct mm_struct {
 		spinlock_t page_table_lock;
 		struct rw_semaphore mmap_lock;
 		struct list_head mmlist;
+		struct rcuwait vma_writer_wait;
+		seqcount_t mm_lock_seq;
 		long unsigned int hiwater_rss;
 		long unsigned int hiwater_vm;
 		long unsigned int total_vm;
@@ -38148,6 +38623,10 @@ struct mm_struct {
 		atomic_t tlb_flush_batched;
 		struct uprobes_state uprobes_state;
 		struct work_struct async_put_work;
+		long: 64;
+		long: 64;
+		long: 64;
+		long: 64;
 	};
 	char flexible_array[0];
 };
@@ -38373,6 +38852,11 @@ struct mnt_ns_info {
 	__u64 mnt_ns_id;
 };
 
+struct mnt_pcp {
+	int mnt_count;
+	int mnt_writers;
+};
+
 struct mod_arch_specific {
 	struct its_array its_pages;
 };
@@ -38454,7 +38938,6 @@ struct module {
 	unsigned int num_exentries;
 	struct exception_table_entry *extable;
 	int (*init)(void);
-	long: 64;
 	struct module_memory mem[7];
 	struct mod_arch_specific arch;
 	long unsigned int taints;
@@ -38463,10 +38946,14 @@ struct module {
 	struct module_sect_attrs *sect_attrs;
 	struct module_notes_attrs *notes_attrs;
 	char *args;
+	void *percpu;
+	unsigned int percpu_size;
 	void *noinstr_text_start;
 	unsigned int noinstr_text_size;
 	unsigned int num_tracepoints;
 	tracepoint_ptr_t *tracepoints_ptrs;
+	unsigned int num_srcu_structs;
+	struct srcu_struct **srcu_struct_ptrs;
 	unsigned int num_bpf_raw_events;
 	struct bpf_raw_event_map *bpf_raw_events;
 	unsigned int btf_data_size;
@@ -38487,10 +38974,6 @@ struct module {
 	unsigned int num_kprobe_blacklist;
 	int num_static_call_sites;
 	struct static_call_site *static_call_sites;
-	long: 64;
-	long: 64;
-	long: 64;
-	long: 64;
 };
 
 struct module_attribute {
@@ -38565,8 +39048,7 @@ struct mount {
 		struct callback_head mnt_rcu;
 		struct llist_node mnt_llist;
 	};
-	int mnt_count;
-	int mnt_writers;
+	struct mnt_pcp *mnt_pcp;
 	struct list_head mnt_mounts;
 	struct list_head mnt_child;
 	struct mount *mnt_next_for_sb;
@@ -38893,6 +39375,32 @@ struct msr_data {
 	u64 data;
 };
 
+struct msr_info {
+	u32 msr_no;
+	struct msr reg;
+	struct msr *msrs;
+	int err;
+};
+
+struct msr_info_completion {
+	struct msr_info msr;
+	struct completion done;
+};
+
+struct msr_regs_info {
+	u32 *regs;
+	int err;
+};
+
+struct multi_stop_data {
+	cpu_stop_fn_t fn;
+	void *data;
+	unsigned int num_threads;
+	const struct cpumask *active_cpus;
+	enum multi_stop_state state;
+	atomic_t thread_ack;
+};
+
 struct multi_symbols_sort {
 	const char **funcs;
 	u64 *cookies;
@@ -38913,6 +39421,11 @@ struct mutex_waiter {
 	struct list_head list;
 	struct task_struct *task;
 	struct ww_acquire_ctx *ww_ctx;
+};
+
+struct mwait_cpu_dead {
+	unsigned int control;
+	unsigned int status;
 };
 
 struct name_snapshot {
@@ -39238,6 +39751,7 @@ struct neighbour {
 	u8 protocol;
 	u32 flags;
 	seqlock_t ha_lock;
+	long: 0;
 	unsigned char ha[32];
 	struct hh_cache hh;
 	int (*output)(struct neighbour *, struct sk_buff *);
@@ -39610,12 +40124,38 @@ struct net {
 	struct netns_bpf bpf;
 	u64 net_cookie;
 	struct sock *diag_nlsk;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct net_aligned_data {
 	atomic64_t net_cookie;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_long_t tcp_memory_allocated;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_long_t udp_memory_allocated;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct netdev_tc_txq {
@@ -39732,6 +40272,8 @@ struct udp_tunnel_nic;
 
 struct net_device_ops;
 
+struct xps_dev_maps;
+
 struct pcpu_lstats;
 
 struct pcpu_sw_netstats;
@@ -39786,6 +40328,7 @@ struct net_device {
 	unsigned int mtu;
 	short unsigned int needed_headroom;
 	struct netdev_tc_txq tc_to_txq[16];
+	struct xps_dev_maps *xps_maps[2];
 	struct bpf_mprog_entry *tcx_egress;
 	__u8 __cacheline_group_end__net_device_read_tx[0];
 	__u8 __cacheline_group_begin__net_device_read_txrx[0];
@@ -39880,6 +40423,7 @@ struct net_device {
 	unsigned int xdp_zc_max_segs;
 	struct netdev_queue *ingress_queue;
 	unsigned char broadcast[32];
+	struct cpu_rmap *rx_cpu_rmap;
 	struct hlist_node index_hlist;
 	unsigned int num_tx_queues;
 	struct Qdisc *qdisc;
@@ -39890,7 +40434,7 @@ struct net_device {
 	int watchdog_timeo;
 	u32 proto_down_reason;
 	struct list_head todo_list;
-	refcount_t dev_refcnt;
+	int *pcpu_refcnt;
 	struct ref_tracker_dir refcnt_tracker;
 	struct list_head link_watch_list;
 	u8 reg_state;
@@ -39947,6 +40491,7 @@ struct net_device {
 	struct mutex lock;
 	struct hlist_head neighbours[2];
 	struct hwtstamp_provider *hwprov;
+	long: 64;
 	long: 64;
 	long: 64;
 	long: 64;
@@ -40017,6 +40562,7 @@ struct net_device_ops {
 	int (*ndo_set_vf_guid)(struct net_device *, int, u64, int);
 	int (*ndo_set_vf_rss_query_en)(struct net_device *, int, bool);
 	int (*ndo_setup_tc)(struct net_device *, enum tc_setup_type, void *);
+	int (*ndo_rx_flow_steer)(struct net_device *, const struct sk_buff *, u16, u32);
 	int (*ndo_add_slave)(struct net_device *, struct net_device *, struct netlink_ext_ack *);
 	int (*ndo_del_slave)(struct net_device *, struct net_device *);
 	struct net_device * (*ndo_get_xmit_slave)(struct net_device *, struct sk_buff *, bool);
@@ -40193,6 +40739,8 @@ struct net_protocol {
 	u32 secret;
 };
 
+struct rps_sock_flow_table;
+
 struct skb_defer_node;
 
 struct net_hotdata {
@@ -40210,6 +40758,8 @@ struct net_hotdata {
 	struct kmem_cache *skbuff_cache;
 	struct kmem_cache *skbuff_fclone_cache;
 	struct kmem_cache *skb_small_head_cache;
+	struct rps_sock_flow_table *rps_sock_flow_table;
+	u32 rps_cpu_mask;
 	struct skb_defer_node *skb_defer_nodes;
 	int gro_normal_batch;
 	int netdev_budget;
@@ -40451,12 +41001,17 @@ struct netdev_queue {
 	long unsigned int tx_maxrate;
 	atomic_long_t trans_timeout;
 	struct net_device *sb_dev;
+	long: 64;
 	struct dql dql;
 	spinlock_t _xmit_lock;
 	int xmit_lock_owner;
 	long unsigned int trans_start;
 	long unsigned int state;
 	struct napi_struct *napi;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct netdev_queue_attribute {
@@ -40529,16 +41084,20 @@ struct pp_memory_provider_params {
 	const struct memory_provider_ops *mp_ops;
 };
 
+struct rps_map;
+
+struct rps_dev_flow_table;
+
 struct netdev_rx_queue {
 	struct xdp_rxq_info xdp_rxq;
+	struct rps_map *rps_map;
+	struct rps_dev_flow_table *rps_flow_table;
 	struct kobject kobj;
 	const struct attribute_group **groups;
 	struct net_device *dev;
 	netdevice_tracker dev_tracker;
 	struct napi_struct *napi;
 	struct pp_memory_provider_params mp_params;
-	long: 64;
-	long: 64;
 	long: 64;
 };
 
@@ -41065,6 +41624,14 @@ struct node_barn {
 	unsigned int nr_empty;
 };
 
+struct node_groups {
+	unsigned int id;
+	union {
+		unsigned int ngroups;
+		unsigned int ncpus;
+	};
+};
+
 struct node_notify {
 	int nid;
 };
@@ -41143,7 +41710,21 @@ struct ntp_data {
 
 struct numa_drop_counters {
 	atomic_t drops0;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	atomic_t drops1;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct objpool_head;
@@ -41274,6 +41855,13 @@ struct open_how {
 	__u64 resolve;
 };
 
+struct optimistic_spin_node {
+	struct optimistic_spin_node *next;
+	struct optimistic_spin_node *prev;
+	int locked;
+	int cpu;
+};
+
 struct optimized_kprobe {
 	struct kprobe kp;
 	struct list_head list;
@@ -41359,12 +41947,31 @@ struct pp_alloc_cache {
 struct ptr_ring {
 	int producer;
 	spinlock_t producer_lock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	int consumer_head;
 	int consumer_tail;
 	spinlock_t consumer_lock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	int size;
 	int batch;
 	void **queue;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct page_pool_params_slow {
@@ -41397,7 +42004,19 @@ struct page_pool {
 	long unsigned int defer_start;
 	long unsigned int defer_warn;
 	u32 xdp_mem_id;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct pp_alloc_cache alloc;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct ptr_ring ring;
 	void *mp_priv;
 	const struct memory_provider_ops *mp_ops;
@@ -41816,6 +42435,7 @@ struct pcpu_chunk {
 	int nr_populated;
 	int nr_empty_pop_pages;
 	long unsigned int populated[0];
+	long: 64;
 };
 
 struct pcpu_dstats {
@@ -42002,9 +42622,16 @@ struct per_cpu_pages {
 	u8 alloc_factor;
 	short int free_count;
 	struct list_head lists[12];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
-struct per_cpu_zonestat {};
+struct per_cpu_zonestat {
+	s8 vm_stat_diff[10];
+	s8 stat_threshold;
+};
 
 struct per_frame_masks {
 	u64 may_read;
@@ -42786,14 +43413,34 @@ struct zone {
 	long unsigned int present_pages;
 	const char *name;
 	int initialized;
+	long: 64;
+	long: 64;
+	long: 64;
+	struct cacheline_padding _pad1_;
 	struct free_area free_area[11];
 	long unsigned int flags;
 	spinlock_t lock;
 	struct llist_head trylock_free_pages;
+	long: 64;
+	long: 64;
+	struct cacheline_padding _pad2_;
 	long unsigned int percpu_drift_mark;
 	bool contiguous;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	struct cacheline_padding _pad3_;
 	atomic_long_t vm_stat[10];
 	atomic_long_t vm_numa_event[0];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct zoneref {
@@ -42823,10 +43470,23 @@ struct pglist_data {
 	enum zone_type kswapd_highest_zoneidx;
 	atomic_t kswapd_failures;
 	long unsigned int totalreserve_pages;
+	long: 64;
+	long: 64;
+	long: 64;
+	struct cacheline_padding _pad1_;
 	struct lruvec __lruvec;
 	long unsigned int flags;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	struct cacheline_padding _pad2_;
 	struct per_cpu_nodestat *per_cpu_nodestats;
 	atomic_long_t vm_stat[45];
+	long: 64;
+	long: 64;
 };
 
 struct phc_vclocks_reply_data {
@@ -43804,6 +44464,18 @@ struct pseudo_fs_context {
 	unsigned int s_d_flags;
 };
 
+struct pstate_funcs {
+	int (*get_max)(int);
+	int (*get_max_physical)(int);
+	int (*get_min)(int);
+	int (*get_turbo)(int);
+	int (*get_scaling)(void);
+	int (*get_cpu_scaling)(int);
+	int (*get_aperf_mperf_shift)(void);
+	u64 (*get_val)(struct cpudata *, int);
+	void (*get_vid)(struct cpudata *);
+};
+
 struct pt_filter {
 	long unsigned int msr_a;
 	long unsigned int msr_b;
@@ -44029,6 +44701,10 @@ struct qdisc_walker {
 	int (*fn)(struct Qdisc *, long unsigned int, struct qdisc_walker *);
 };
 
+struct qnode {
+	struct mcs_spinlock mcs;
+};
+
 struct queue_limits {
 	blk_features_t features;
 	blk_flags_t flags;
@@ -44197,6 +44873,7 @@ struct raw6_sock {
 	__u32 offset;
 	struct icmp6_filter filter;
 	__u32 ip6mr_table;
+	long: 0;
 	struct numa_drop_counters drop_counters;
 	struct ipv6_pinfo inet6;
 };
@@ -44218,6 +44895,13 @@ struct raw_frag_vec {
 
 struct raw_hashinfo {
 	spinlock_t lock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct hlist_head ht[256];
 };
 
@@ -44225,6 +44909,11 @@ struct raw_sock {
 	struct inet_sock inet;
 	struct icmp_filter filter;
 	u32 ipmr_table;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct numa_drop_counters drop_counters;
 };
 
@@ -44277,15 +44966,12 @@ struct rcu_cblist {
 	long int len;
 };
 
-struct rcu_ctrlblk {
-	struct callback_head *rcucblist;
-	struct callback_head **donetail;
-	struct callback_head **curtail;
-	long unsigned int gp_seq;
-};
-
-struct rcu_gp_oldstate {
-	long unsigned int rgos_norm;
+union rcu_noqs {
+	struct {
+		u8 norm;
+		u8 exp;
+	} b;
+	u16 s;
 };
 
 struct rcu_segcblist {
@@ -44297,6 +44983,147 @@ struct rcu_segcblist {
 	u8 flags;
 };
 
+struct rcu_snap_record {
+	long unsigned int gp_seq;
+	u64 cputime_irq;
+	u64 cputime_softirq;
+	u64 cputime_system;
+	u64 nr_hardirqs;
+	unsigned int nr_softirqs;
+	long long unsigned int nr_csw;
+	long unsigned int jiffies;
+};
+
+struct rcu_node;
+
+struct rcu_data {
+	long unsigned int gp_seq;
+	long unsigned int gp_seq_needed;
+	union rcu_noqs cpu_no_qs;
+	bool core_needs_qs;
+	bool beenonline;
+	bool gpwrap;
+	unsigned int gpwrap_count;
+	bool cpu_started;
+	struct rcu_node *mynode;
+	long unsigned int grpmask;
+	long unsigned int ticks_this_gp;
+	struct irq_work defer_qs_iw;
+	int defer_qs_iw_pending;
+	struct work_struct strict_work;
+	struct rcu_segcblist cblist;
+	long int qlen_last_fqs_check;
+	long unsigned int n_cbs_invoked;
+	long unsigned int n_force_qs_snap;
+	long int blimit;
+	int watching_snap;
+	bool rcu_need_heavy_qs;
+	bool rcu_urgent_qs;
+	bool rcu_forced_tick;
+	bool rcu_forced_tick_exp;
+	long unsigned int barrier_seq_snap;
+	struct callback_head barrier_head;
+	int exp_watching_snap;
+	struct task_struct *rcu_cpu_kthread_task;
+	unsigned int rcu_cpu_kthread_status;
+	char rcu_cpu_has_work;
+	long unsigned int rcuc_activity;
+	unsigned int softirq_snap;
+	struct irq_work rcu_iw;
+	bool rcu_iw_pending;
+	long unsigned int rcu_iw_gp_seq;
+	long unsigned int rcu_ofl_gp_seq;
+	short int rcu_ofl_gp_state;
+	long unsigned int rcu_onl_gp_seq;
+	short int rcu_onl_gp_state;
+	long unsigned int last_fqs_resched;
+	long unsigned int last_sched_clock;
+	struct rcu_snap_record snap_record;
+	long int lazy_len;
+	int cpu;
+};
+
+struct rcu_exp_work {
+	long unsigned int rew_s;
+	struct kthread_work rew_work;
+};
+
+struct rcu_gp_oldstate {
+	long unsigned int rgos_norm;
+	long unsigned int rgos_exp;
+};
+
+struct rt_mutex_base {
+	raw_spinlock_t wait_lock;
+	struct rb_root_cached waiters;
+	struct task_struct *owner;
+};
+
+struct rt_mutex {
+	struct rt_mutex_base rtmutex;
+};
+
+struct rcu_node {
+	raw_spinlock_t lock;
+	long unsigned int gp_seq;
+	long unsigned int gp_seq_needed;
+	long unsigned int completedqs;
+	long unsigned int qsmask;
+	long unsigned int rcu_gp_init_mask;
+	long unsigned int qsmaskinit;
+	long unsigned int qsmaskinitnext;
+	long unsigned int expmask;
+	long unsigned int expmaskinit;
+	long unsigned int expmaskinitnext;
+	struct kthread_worker *exp_kworker;
+	long unsigned int cbovldmask;
+	long unsigned int ffmask;
+	long unsigned int grpmask;
+	int grplo;
+	int grphi;
+	u8 grpnum;
+	u8 level;
+	bool wait_blkd_tasks;
+	struct rcu_node *parent;
+	struct list_head blkd_tasks;
+	struct list_head *gp_tasks;
+	struct list_head *exp_tasks;
+	struct list_head *boost_tasks;
+	struct rt_mutex boost_mtx;
+	long unsigned int boost_time;
+	struct mutex kthread_mutex;
+	struct task_struct *boost_kthread_task;
+	unsigned int boost_kthread_status;
+	long unsigned int n_boosts;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	raw_spinlock_t fqslock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	spinlock_t exp_lock;
+	long unsigned int exp_seq_rq;
+	wait_queue_head_t exp_wq[4];
+	struct rcu_exp_work rew;
+	bool exp_need_flush;
+	raw_spinlock_t exp_poll_lock;
+	long unsigned int exp_seq_poll_rq;
+	struct work_struct exp_poll_wq;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+};
+
 union rcu_special {
 	struct {
 		u8 blocked;
@@ -44305,6 +45132,78 @@ union rcu_special {
 		u8 need_mb;
 	} b;
 	u32 s;
+};
+
+struct sr_wait_node {
+	atomic_t inuse;
+	struct llist_node node;
+};
+
+struct rcu_state {
+	struct rcu_node node[1];
+	struct rcu_node *level[2];
+	int ncpus;
+	int n_online_cpus;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long unsigned int gp_seq;
+	long unsigned int gp_max;
+	struct task_struct *gp_kthread;
+	struct swait_queue_head gp_wq;
+	short int gp_flags;
+	short int gp_state;
+	long unsigned int gp_wake_time;
+	long unsigned int gp_wake_seq;
+	long unsigned int gp_seq_polled;
+	long unsigned int gp_seq_polled_snap;
+	long unsigned int gp_seq_polled_exp_snap;
+	struct mutex barrier_mutex;
+	atomic_t barrier_cpu_count;
+	struct completion barrier_completion;
+	long unsigned int barrier_sequence;
+	raw_spinlock_t barrier_lock;
+	struct mutex exp_mutex;
+	struct mutex exp_wake_mutex;
+	long unsigned int expedited_sequence;
+	atomic_t expedited_need_qs;
+	struct swait_queue_head expedited_wq;
+	int ncpus_snap;
+	u8 cbovld;
+	u8 cbovldnext;
+	long unsigned int jiffies_force_qs;
+	long unsigned int jiffies_kick_kthreads;
+	long unsigned int n_force_qs;
+	long unsigned int gp_start;
+	long unsigned int gp_end;
+	long unsigned int gp_activity;
+	long unsigned int gp_req_activity;
+	long unsigned int jiffies_stall;
+	int nr_fqs_jiffies_stall;
+	long unsigned int jiffies_resched;
+	long unsigned int n_force_qs_gpstart;
+	const char *name;
+	char abbr;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	arch_spinlock_t ofl_lock;
+	struct llist_head srs_next;
+	struct llist_node *srs_wait_tail;
+	struct llist_node *srs_done_tail;
+	struct sr_wait_node srs_wait_nodes[5];
+	struct work_struct srs_cleanup_work;
+	atomic_t srs_cleanups_pending;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct rcu_synchronize {
@@ -44841,9 +45740,45 @@ struct root_domain {
 	struct dl_bw dl_bw;
 	struct cpudl cpudl;
 	u64 visit_cookie;
+	struct irq_work rto_push_work;
+	raw_spinlock_t rto_lock;
+	int rto_loop;
+	int rto_cpu;
+	atomic_t rto_loop_next;
+	atomic_t rto_loop_start;
 	cpumask_var_t rto_mask;
 	struct cpupri cpupri;
 	struct perf_domain *pd;
+};
+
+struct rps_dev_flow {
+	u16 cpu;
+	u16 filter;
+	unsigned int last_qtail;
+	u32 hash;
+};
+
+struct rps_dev_flow_table {
+	u8 log;
+	struct callback_head rcu;
+	struct rps_dev_flow flows[0];
+};
+
+struct rps_map {
+	unsigned int len;
+	struct callback_head rcu;
+	u16 cpus[0];
+};
+
+struct rps_sock_flow_table {
+	struct callback_head rcu;
+	u32 mask;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	u32 ents[0];
 };
 
 struct rt_prio_array {
@@ -44952,13 +45887,13 @@ struct rq {
 	u64 idle_stamp;
 	u64 avg_idle;
 	u64 max_idle_balance_cost;
+	struct rcuwait hotplug_wait;
 	long unsigned int calc_load_update;
 	long int calc_load_active;
 	unsigned int nr_pinned;
 	unsigned int push_busy;
 	struct cpu_stop_work push_work;
 	cpumask_var_t scratch_mask;
-	long: 64;
 	long: 64;
 	long: 64;
 };
@@ -45781,6 +46716,15 @@ struct sd_flag_debug {
 	char *name;
 };
 
+struct sd_flow_limit {
+	struct callback_head rcu;
+	unsigned int count;
+	u8 log_buckets;
+	unsigned int history_head;
+	u16 history[128];
+	u8 buckets[0];
+};
+
 struct sg_lb_stats {
 	long unsigned int avg_load;
 	long unsigned int group_load;
@@ -46391,6 +47335,12 @@ struct sk_skb_cb {
 struct skb_defer_node {
 	struct llist_head defer_list;
 	atomic_long_t defer_count;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct skb_frag {
@@ -46523,6 +47473,25 @@ struct smc_hashinfo {
 	struct hlist_head ht;
 };
 
+struct smp_alt_module {
+	struct module *mod;
+	char *name;
+	const s32 *locks;
+	const s32 *locks_end;
+	u8 *text;
+	u8 *text_end;
+	struct list_head next;
+};
+
+struct smp_call_on_cpu_struct {
+	struct work_struct work;
+	struct completion done;
+	int (*func)(void *);
+	void *data;
+	int ret;
+	int cpu;
+};
+
 struct smp_hotplug_thread {
 	struct task_struct **store;
 	struct list_head list;
@@ -46535,6 +47504,24 @@ struct smp_hotplug_thread {
 	void (*unpark)(unsigned int);
 	bool selfparking;
 	const char *thread_comm;
+};
+
+struct smp_ops {
+	void (*smp_prepare_boot_cpu)(void);
+	void (*smp_prepare_cpus)(unsigned int);
+	void (*smp_cpus_done)(unsigned int);
+	void (*stop_other_cpus)(int);
+	void (*crash_stop_other_cpus)(void);
+	void (*smp_send_reschedule)(int);
+	void (*cleanup_dead_cpu)(unsigned int);
+	void (*poll_sync_state)(void);
+	int (*kick_ap_alive)(unsigned int, struct task_struct *);
+	int (*cpu_disable)(void);
+	void (*cpu_die)(unsigned int);
+	void (*play_dead)(void);
+	void (*stop_this_cpu)(void);
+	void (*send_call_func_ipi)(const struct cpumask *);
+	void (*send_call_func_single_ipi)(int);
 };
 
 struct smp_text_poke_loc {
@@ -46690,6 +47677,7 @@ struct socket_wq {
 	struct fasync_struct *fasync_list;
 	long unsigned int flags;
 	struct callback_head rcu;
+	long: 64;
 };
 
 struct socket {
@@ -46699,6 +47687,9 @@ struct socket {
 	struct file *file;
 	struct sock *sk;
 	const struct proto_ops *ops;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct socket_wq wq;
 };
 
@@ -46709,6 +47700,8 @@ struct socket__safe_trusted_or_null {
 struct socket_alloc {
 	struct socket socket;
 	struct inode vfs_inode;
+	long: 64;
+	long: 64;
 };
 
 struct sockmap_link {
@@ -46726,17 +47719,41 @@ struct softnet_data {
 	local_lock_t process_queue_bh_lock;
 	unsigned int processed;
 	unsigned int time_squeeze;
+	struct softnet_data *rps_ipi_list;
 	unsigned int received_rps;
 	bool in_net_rx_action;
 	bool in_napi_threaded_poll;
+	struct sd_flow_limit *flow_limit;
 	struct Qdisc *output_queue;
 	struct Qdisc **output_queue_tailp;
 	struct sk_buff *completion_queue;
 	struct netdev_xmit xmit;
+	long: 64;
+	long: 64;
+	long: 64;
+	unsigned int input_queue_head;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	call_single_data_t csd;
+	struct softnet_data *rps_ipi_next;
+	unsigned int cpu;
+	long: 64;
+	long: 64;
+	long int pad[3];
+	unsigned int input_queue_tail;
 	struct sk_buff_head input_pkt_queue;
 	struct napi_struct backlog;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct numa_drop_counters drop_counters;
 	int defer_ipi_scheduled;
+	long: 64;
 	long: 64;
 	long: 64;
 	call_single_data_t defer_csd;
@@ -46796,7 +47813,73 @@ struct sr6_tlv {
 	__u8 data[0];
 };
 
-struct srcu_usage {};
+struct srcu_ctr {
+	atomic_long_t srcu_locks;
+	atomic_long_t srcu_unlocks;
+};
+
+struct srcu_node;
+
+struct srcu_data {
+	struct srcu_ctr srcu_ctrs[2];
+	int srcu_reader_flavor;
+	long: 64;
+	long: 64;
+	long: 64;
+	spinlock_t lock;
+	struct rcu_segcblist srcu_cblist;
+	long unsigned int srcu_gp_seq_needed;
+	long unsigned int srcu_gp_seq_needed_exp;
+	bool srcu_cblist_invoking;
+	struct timer_list delay_work;
+	struct work_struct work;
+	struct callback_head srcu_barrier_head;
+	struct callback_head srcu_ec_head;
+	int srcu_ec_state;
+	struct srcu_node *mynode;
+	long unsigned int grpmask;
+	int cpu;
+	struct srcu_struct *ssp;
+	long: 64;
+	long: 64;
+	long: 64;
+};
+
+struct srcu_node {
+	spinlock_t lock;
+	long unsigned int srcu_have_cbs[4];
+	long unsigned int srcu_data_have_cbs[4];
+	long unsigned int srcu_gp_seq_needed_exp;
+	struct srcu_node *srcu_parent;
+	int grplo;
+	int grphi;
+};
+
+struct srcu_usage {
+	struct srcu_node *node;
+	struct srcu_node *level[2];
+	int srcu_size_state;
+	struct mutex srcu_cb_mutex;
+	spinlock_t lock;
+	struct mutex srcu_gp_mutex;
+	long unsigned int srcu_gp_seq;
+	long unsigned int srcu_gp_seq_needed;
+	long unsigned int srcu_gp_seq_needed_exp;
+	long unsigned int srcu_gp_start;
+	long unsigned int srcu_last_gp_end;
+	long unsigned int srcu_size_jiffies;
+	long unsigned int srcu_n_lock_retries;
+	long unsigned int srcu_n_exp_nodelay;
+	bool sda_is_static;
+	long unsigned int srcu_barrier_seq;
+	struct mutex srcu_barrier_mutex;
+	struct completion srcu_barrier_completion;
+	atomic_t srcu_barrier_cpu_cnt;
+	long unsigned int reschedule_jiffies;
+	long unsigned int reschedule_count;
+	struct delayed_work work;
+	struct srcu_struct *srcu_ssp;
+};
 
 struct srcu_notifier_head {
 	struct mutex mutex;
@@ -46810,6 +47893,13 @@ struct ss_tmp {
 	long unsigned int data;
 	spinlock_t *lock;
 	spinlock_t *lock_irqsave;
+};
+
+struct ssb_state {
+	struct ssb_state *shared_state;
+	raw_spinlock_t lock;
+	unsigned int disable_state;
+	long unsigned int local_state;
 };
 
 struct stack_entry {
@@ -47110,6 +48200,45 @@ struct subsys_private {
 	struct lock_class_key lock_key;
 };
 
+struct sugov_policy;
+
+struct sugov_cpu {
+	struct update_util_data update_util;
+	struct sugov_policy *sg_policy;
+	unsigned int cpu;
+	bool iowait_boost_pending;
+	unsigned int iowait_boost;
+	u64 last_update;
+	long unsigned int util;
+	long unsigned int bw_min;
+};
+
+struct sugov_tunables;
+
+struct sugov_policy {
+	struct cpufreq_policy *policy;
+	struct sugov_tunables *tunables;
+	struct list_head tunables_hook;
+	raw_spinlock_t update_lock;
+	u64 last_freq_update_time;
+	s64 freq_update_delay_ns;
+	unsigned int next_freq;
+	unsigned int cached_raw_freq;
+	struct irq_work irq_work;
+	struct kthread_work work;
+	struct mutex work_lock;
+	struct kthread_worker worker;
+	struct task_struct *thread;
+	bool work_in_progress;
+	bool limits_changed;
+	bool need_freq_update;
+};
+
+struct sugov_tunables {
+	struct gov_attr_set attr_set;
+	unsigned int rate_limit_us;
+};
+
 typedef struct super_block *class_super_write_t;
 
 struct mtd_info;
@@ -47170,11 +48299,14 @@ struct super_block {
 	struct work_struct destroy_work;
 	struct mutex s_sync_lock;
 	int s_stack_depth;
+	long: 64;
+	long: 64;
 	spinlock_t s_inode_list_lock;
 	struct list_head s_inodes;
 	spinlock_t s_inode_wblist_lock;
 	struct list_head s_inodes_wb;
 	long int s_min_writeback_pages;
+	long: 64;
 };
 
 struct super_operations {
@@ -47412,6 +48544,13 @@ struct sysinfo {
 	char _f[0];
 };
 
+struct sysrq_key_op {
+	void (* const handler)(u8);
+	const char * const help_msg;
+	const char * const action_msg;
+	const int enable_mask;
+};
+
 struct system_counterval_t {
 	u64 cycles;
 	enum clocksource_ids cs_id;
@@ -47460,6 +48599,7 @@ struct thread_info {
 	long unsigned int flags;
 	long unsigned int syscall_work;
 	u32 status;
+	u32 cpu;
 };
 
 struct wake_q_node {
@@ -47683,6 +48823,11 @@ struct task_struct {
 	struct callback_head l1d_flush_kill;
 	struct unwind_task_info unwind_info;
 	struct thread_struct thread;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	long: 64;
 	long: 64;
 };
@@ -47960,6 +49105,11 @@ struct tcp_sock {
 	struct minmax rtt_min;
 	struct rb_root out_of_order_queue;
 	__u8 __cacheline_group_end__tcp_sock_read_rx[0];
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	long: 64;
 	__u8 __cacheline_group_begin__tcp_sock_write_tx[0];
 	u32 segs_out;
@@ -48539,6 +49689,32 @@ union text_poke_insn {
 	} __attribute__((packed));
 };
 
+struct thermal_cooling_device_ops;
+
+struct thermal_cooling_device {
+	int id;
+	const char *type;
+	long unsigned int max_state;
+	struct device device;
+	struct device_node *np;
+	void *devdata;
+	void *stats;
+	const struct thermal_cooling_device_ops *ops;
+	bool updated;
+	struct mutex lock;
+	struct list_head thermal_instances;
+	struct list_head node;
+};
+
+struct thermal_cooling_device_ops {
+	int (*get_max_state)(struct thermal_cooling_device *, long unsigned int *);
+	int (*get_cur_state)(struct thermal_cooling_device *, long unsigned int *);
+	int (*set_cur_state)(struct thermal_cooling_device *, long unsigned int);
+	int (*get_requested_power)(struct thermal_cooling_device *, u32 *);
+	int (*state2power)(struct thermal_cooling_device *, long unsigned int, u32 *);
+	int (*power2state)(struct thermal_cooling_device *, u32, long unsigned int *);
+};
+
 struct thread_group_cputimer {
 	struct task_cputime_atomic cputime_atomic;
 };
@@ -48634,7 +49810,6 @@ struct timer_base {
 	struct hlist_head vectors[576];
 	long: 64;
 	long: 64;
-	long: 64;
 };
 
 struct timer_rand_state {
@@ -48670,7 +49845,6 @@ struct tk_data {
 	struct timekeeper timekeeper;
 	struct timekeeper shadow_timekeeper;
 	raw_spinlock_t lock;
-	long: 64;
 };
 
 struct tk_fast {
@@ -49208,6 +50382,10 @@ struct trace_event_data_offsets_cpuhp_exit {};
 
 struct trace_event_data_offsets_cpuhp_multi_enter {};
 
+struct trace_event_data_offsets_csd_function {};
+
+struct trace_event_data_offsets_csd_queue_cpu {};
+
 struct trace_event_data_offsets_ctime {};
 
 struct trace_event_data_offsets_ctime_ns_xchg {};
@@ -49608,6 +50786,8 @@ struct trace_event_data_offsets_qdisc_reset {
 	u32 kind;
 	const void *kind_ptr_;
 };
+
+struct trace_event_data_offsets_rcu_stall_warning {};
 
 struct trace_event_data_offsets_rcu_utilization {};
 
@@ -50041,6 +51221,22 @@ struct trace_event_raw_cpuhp_multi_enter {
 	int target;
 	int idx;
 	void *fun;
+	char __data[0];
+};
+
+struct trace_event_raw_csd_function {
+	struct trace_entry ent;
+	void *func;
+	void *csd;
+	char __data[0];
+};
+
+struct trace_event_raw_csd_queue_cpu {
+	struct trace_entry ent;
+	unsigned int cpu;
+	void *callsite;
+	void *func;
+	void *csd;
 	char __data[0];
 };
 
@@ -51349,6 +52545,13 @@ struct trace_event_raw_qdisc_reset {
 	u32 __data_loc_kind;
 	u32 parent;
 	u32 handle;
+	char __data[0];
+};
+
+struct trace_event_raw_rcu_stall_warning {
+	struct trace_entry ent;
+	const char *rcuname;
+	const char *msg;
 	char __data[0];
 };
 
@@ -52914,11 +54117,14 @@ struct udp_sock {
 	struct sk_buff * (*gro_receive)(struct sock *, struct list_head *, struct sk_buff *);
 	int (*gro_complete)(struct sock *, struct sk_buff *, int);
 	struct udp_prod_queue *udp_prod_queue;
+	long: 64;
+	long: 64;
 	struct sk_buff_head reader_queue;
 	int forward_deficit;
 	int forward_threshold;
 	bool peeking_with_offset;
 	struct hlist_node tunnel_list;
+	long: 64;
 	struct numa_drop_counters drop_counters;
 };
 
@@ -52956,6 +54162,12 @@ struct udp_mib {
 struct udp_prod_queue {
 	struct llist_head ll_root;
 	atomic_t rmem_alloc;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 };
 
 struct udp_skb_cb {
@@ -53051,6 +54263,10 @@ struct unix_sock {
 	struct sock *listener;
 	struct unix_vertex *vertex;
 	spinlock_t lock;
+	long: 64;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct socket_wq peer_wq;
 	wait_queue_entry_t peer_wake;
 	struct scm_stat scm_stat;
@@ -53408,6 +54624,11 @@ struct vdso_time_data {
 	long: 64;
 };
 
+struct vector_cleanup {
+	struct hlist_head head;
+	struct timer_list timer;
+};
+
 struct vfree_deferred {
 	struct llist_head list;
 	struct work_struct wq;
@@ -53484,18 +54705,25 @@ struct vm_area_struct {
 		const vm_flags_t vm_flags;
 		vma_flags_t flags;
 	};
+	unsigned int vm_lock_seq;
 	struct list_head anon_vma_chain;
 	struct anon_vma *anon_vma;
 	const struct vm_operations_struct *vm_ops;
 	long unsigned int vm_pgoff;
 	struct file *vm_file;
 	void *vm_private_data;
+	long: 64;
+	long: 64;
+	long: 64;
+	refcount_t vm_refcnt;
 	struct {
 		struct rb_node rb;
 		long unsigned int rb_subtree_last;
 	} shared;
 	struct vm_userfaultfd_ctx vm_userfaultfd_ctx;
 	struct pfnmap_track_ctx *pfnmap_track_ctx;
+	long: 64;
+	long: 64;
 };
 
 struct vm_area_struct__safe_trusted_or_null {
@@ -53799,6 +55027,13 @@ struct word_at_a_time {
 	const long unsigned int high_bits;
 };
 
+struct work_for_cpu {
+	struct work_struct work;
+	long int (*fn)(void *);
+	void *arg;
+	long int ret;
+};
+
 struct work_offq_data {
 	u32 pool_id;
 	u32 disable;
@@ -53891,7 +55126,6 @@ struct workqueue_struct {
 	struct wq_device *wq_dev;
 	char name[32];
 	struct callback_head rcu;
-	long: 64;
 	long: 64;
 	long: 64;
 	unsigned int flags;
@@ -54603,6 +55837,9 @@ struct xdp_umem;
 
 struct xdp_sock {
 	struct sock sk;
+	long: 64;
+	long: 64;
+	long: 64;
 	struct xsk_queue *rx;
 	struct net_device *dev;
 	struct xdp_umem *umem;
@@ -54616,6 +55853,7 @@ struct xdp_sock {
 		XSK_BOUND = 1,
 		XSK_UNBOUND = 2,
 	} state;
+	long: 64;
 	struct xsk_queue *tx;
 	struct list_head tx_list;
 	u32 tx_budget_spent;
@@ -54942,6 +56180,22 @@ struct xol_area {
 	long unsigned int vaddr;
 };
 
+struct xps_map;
+
+struct xps_dev_maps {
+	struct callback_head rcu;
+	unsigned int nr_ids;
+	s16 num_tc;
+	struct xps_map *attr_map[0];
+};
+
+struct xps_map {
+	unsigned int len;
+	unsigned int alloc_len;
+	struct callback_head rcu;
+	u16 queues[0];
+};
+
 struct xsk_buff_pool {
 	struct device *dev;
 	struct net_device *netdev;
@@ -54979,6 +56233,8 @@ struct xsk_buff_pool {
 	spinlock_t cq_prod_lock;
 	spinlock_t cq_cached_prod_lock;
 	struct xdp_buff_xsk *free_heads[0];
+	long: 64;
+	long: 64;
 };
 
 struct xsk_tx_metadata_ops {
@@ -55551,6 +56807,14 @@ typedef void (*btf_trace_bpf_trigger_tp)(void *, int);
 
 typedef void (*btf_trace_bpf_xdp_link_attach_failed)(void *, const char *);
 
+typedef void (*btf_trace_call_function_entry)(void *, int);
+
+typedef void (*btf_trace_call_function_exit)(void *, int);
+
+typedef void (*btf_trace_call_function_single_entry)(void *, int);
+
+typedef void (*btf_trace_call_function_single_exit)(void *, int);
+
 typedef void (*btf_trace_cap_capable)(void *, const struct cred *, struct user_namespace *, const struct user_namespace *, int, int);
 
 typedef void (*btf_trace_console)(void *, const char *, size_t);
@@ -55574,6 +56838,12 @@ typedef void (*btf_trace_cpuhp_enter)(void *, unsigned int, int, int, int (*)(un
 typedef void (*btf_trace_cpuhp_exit)(void *, unsigned int, int, int, int);
 
 typedef void (*btf_trace_cpuhp_multi_enter)(void *, unsigned int, int, int, int (*)(unsigned int, struct hlist_node *), struct hlist_node *);
+
+typedef void (*btf_trace_csd_function_entry)(void *, smp_call_func_t, call_single_data_t *);
+
+typedef void (*btf_trace_csd_function_exit)(void *, smp_call_func_t, call_single_data_t *);
+
+typedef void (*btf_trace_csd_queue_cpu)(void *, const unsigned int, long unsigned int, smp_call_func_t, call_single_data_t *);
 
 typedef void (*btf_trace_ctime_ns_xchg)(void *, struct inode *, u32, u32, u32);
 
@@ -55943,6 +57213,8 @@ typedef void (*btf_trace_qdisc_enqueue)(void *, struct Qdisc *, const struct net
 
 typedef void (*btf_trace_qdisc_reset)(void *, struct Qdisc *);
 
+typedef void (*btf_trace_rcu_stall_warning)(void *, const char *, const char *);
+
 typedef void (*btf_trace_rcu_utilization)(void *, const char *);
 
 typedef void (*btf_trace_rdpmc)(void *, unsigned int, u64, int);
@@ -55952,6 +57224,10 @@ typedef void (*btf_trace_read_msr)(void *, unsigned int, u64, int);
 typedef void (*btf_trace_reclaim_retry_zone)(void *, struct zoneref *, int, long unsigned int, long unsigned int, long unsigned int, int, bool);
 
 typedef void (*btf_trace_remove_migration_pte)(void *, long unsigned int, long unsigned int, int);
+
+typedef void (*btf_trace_reschedule_entry)(void *, int);
+
+typedef void (*btf_trace_reschedule_exit)(void *, int);
 
 typedef void (*btf_trace_rss_stat)(void *, struct mm_struct *, int);
 
@@ -56306,6 +57582,10 @@ typedef int (*objpool_init_obj_cb)(void *, void *);
 typedef int (*parse_pred_fn)(const char *, void *, int, struct filter_parse_error *, struct filter_pred **);
 
 typedef int (*parse_unknown_fn)(char *, char *, const char *, void *);
+
+typedef int pcpu_fc_cpu_distance_fn_t(unsigned int, unsigned int);
+
+typedef int pcpu_fc_cpu_to_node_fn_t(int);
 
 typedef void perf_iterate_f(struct perf_event *, void *);
 
