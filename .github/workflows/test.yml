@@ -101,3 +101,16 @@ jobs:
       - name: Check for differences
         run: git diff --exit-code ||
              (echo "!!!! CHECKED IN vmlinux.h HEADER IS OUTDATED !!!!" && false)
+  required-checks:
+    needs: [
+      build,
+      clippy,
+      rustfmt,
+      cargo-doc,
+      test-libbpf-rs,
+      check-headers,
+    ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo '${{ toJSON(needs) }}' | jq -e 'to_entries | all(.value.result == "success")'
