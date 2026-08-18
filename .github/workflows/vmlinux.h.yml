@@ -70,7 +70,7 @@ jobs:
         run: ./scripts/gen-vmlinux-header.sh ${{ matrix.arch }}
 
       - name: Upload headers
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vmlinux.h-${{ matrix.arch }}
           if-no-files-found: error
@@ -104,7 +104,7 @@ jobs:
           done
 
       - name: Upload combined headers
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vmlinux.h
           if-no-files-found: error
