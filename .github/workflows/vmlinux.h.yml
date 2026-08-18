@@ -31,10 +31,10 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Check out Linux source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: 'torvalds/linux'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.kernel-ref || 'v6.19' }}
@@ -42,7 +42,7 @@ jobs:
           path: linux/
 
       - name: Check out pahole source
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: 'acmel/dwarves'
           ref: 'next'
